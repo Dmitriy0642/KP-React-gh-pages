@@ -7,15 +7,25 @@ import GroupList from "./groupList";
 import SearchStatus from "./searchStatus";
 import UserTable from "./usersTable";
 import _ from "lodash";
+import { useParams } from "react-router-dom";
+import Display from "./displayUsers";
 const Users = () => {
+    const { userId } = useParams();
     const [currentPage, setCurrentPage] = useState(1);
     const [professions, setProfession] = useState();
     const [selectedProf, setSelectedProf] = useState();
     const [sortBy, setSortBy] = useState({ path: "name", order: "asc" });
     const pageSize = 8;
     const [users, setUsers] = useState();
+    const [currentUser, setCurrentUsers] = useState();
+
     useEffect(() => {
         api.users.fetchAll().then((data) => setUsers(data));
+    }, []);
+    useEffect(() => {
+        api.users.getById(userId).then((user) => {
+            return setCurrentUsers(user);
+        });
     }, []);
     const handleDelete = (userId) => {
         setUsers(users.filter((user) => user._id !== userId));
@@ -36,6 +46,10 @@ const Users = () => {
     useEffect(() => {
         setCurrentPage(1);
     }, [selectedProf]);
+
+    if (userId !== undefined) {
+        return <Display currentUser={currentUser} />;
+    }
 
     const handleProfessionSelect = (item) => {
         setSelectedProf(item);
